@@ -114,7 +114,7 @@ export const SearchBar = ({ videoPlayerRef }: SearchBarProps) => {
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [isPlaying]);
+  });
 
   return (
     <div className="flex items-center gap-2 w-full max-w-2xl mx-auto bg-background/50 backdrop-blur-sm border border-border/50 p-4 rounded-2xl">
