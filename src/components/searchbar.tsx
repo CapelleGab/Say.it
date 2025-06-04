@@ -18,6 +18,7 @@ export const SearchBar = ({ videoPlayerRef }: SearchBarProps) => {
   const [volume, setVolume] = useState(1);
   const [isMuted, setIsMuted] = useState(false);
   const [showVolumeSlider, setShowVolumeSlider] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const previousVolume = useRef(1);
   const formRef = useRef<HTMLFormElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -28,9 +29,26 @@ export const SearchBar = ({ videoPlayerRef }: SearchBarProps) => {
     }
   }, [videoPlayerRef]);
 
-  const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSearch = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log(prompt);
+    if (!prompt.trim()) return;
+
+    setIsLoading(true);
+
+    try {
+      const res = await fetch("/api/guess", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ quote: prompt }),
+      });
+
+      const data = await res.json();
+      console.log("🎬 Résultat API :", data);
+    } catch (error) {
+      console.error("Erreur lors de la recherche :", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const togglePlay = () => {
@@ -122,17 +140,20 @@ export const SearchBar = ({ videoPlayerRef }: SearchBarProps) => {
       <form
         ref={formRef}
         onSubmit={handleSearch}
-        className="flex items-center gap-2 w-full max-w-2xl mx-auto"
+        className="flex items-center gap-2 w-full"
       >
         <Input
           ref={inputRef}
           type="text"
-          placeholder="Enter your prompt here..."
+          placeholder="Entrez une citation de film..."
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
           className="w-full"
+          disabled={isLoading}
         />
-        <Button type="submit">Search</Button>
+        <Button type="submit" disabled={isLoading}>
+          {isLoading ? "Recherche..." : "Rechercher"}
+        </Button>
       </form>
 
       <div className="flex items-center gap-3 ml-2 border-l border-border/50 pl-3">
