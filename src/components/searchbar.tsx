@@ -22,25 +22,11 @@ export const SearchBar = ({ videoPlayerRef }: SearchBarProps) => {
   const formRef = useRef<HTMLFormElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Synchroniser l'état de lecture avec la vidéo au montage et périodiquement
   useEffect(() => {
-    const updatePlayState = () => {
-      if (videoPlayerRef?.current) {
-        const currentPlayState = videoPlayerRef.current.getPlayState();
-        if (currentPlayState !== isPlaying) {
-          setIsPlaying(currentPlayState);
-        }
-      }
-    };
-
-    // Vérifier immédiatement
-    updatePlayState();
-
-    // Puis vérifier périodiquement
-    const interval = setInterval(updatePlayState, 1000);
-
-    return () => clearInterval(interval);
-  }, [videoPlayerRef, isPlaying]);
+    if (videoPlayerRef?.current) {
+      setIsPlaying(videoPlayerRef.current.getPlayState());
+    }
+  }, [videoPlayerRef]);
 
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -49,6 +35,11 @@ export const SearchBar = ({ videoPlayerRef }: SearchBarProps) => {
 
   const togglePlay = () => {
     if (videoPlayerRef?.current) {
+      // Changer l'état immédiatement avant d'appeler la méthode de la vidéo
+      const newPlayState = !isPlaying;
+      setIsPlaying(newPlayState);
+
+      // Puis modifier l'état de la vidéo
       videoPlayerRef.current.togglePlay();
     }
   };
