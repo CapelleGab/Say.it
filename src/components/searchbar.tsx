@@ -15,17 +15,46 @@ interface SearchBarProps {
 }
 
 export const SearchBar = ({ videoPlayerRef }: SearchBarProps) => {
-  const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedVideoInfo, setSelectedVideoInfo] =
     useState<YouTubeVideo | null>(null);
   const [movieInfo, setMovieInfo] = useState<MovieDetails | null>(null);
 
-  // Effet pour synchroniser l'état de lecture avec le lecteur vidéo
+  // Ajouter un gestionnaire d'événement pour la barre d'espace
   useEffect(() => {
-    if (videoPlayerRef?.current) {
-      setIsPlaying(videoPlayerRef.current.getPlayState());
-    }
+    const handleSpaceKey = (e: KeyboardEvent) => {
+      // Ignorer si l'utilisateur tape dans un champ de texte
+      if (
+        e.target instanceof HTMLInputElement ||
+        e.target instanceof HTMLTextAreaElement ||
+        e.target instanceof HTMLSelectElement
+      ) {
+        return;
+      }
+
+      // Vérifier si c'est la barre d'espace
+      if (e.code === "Space" || e.key === " ") {
+        e.preventDefault(); // Empêcher le défilement de la page
+
+        // Toggler la lecture
+        if (videoPlayerRef?.current) {
+          try {
+            videoPlayerRef.current.togglePlay();
+            console.log("Spacebar pressed: toggling video playback");
+          } catch (error) {
+            console.warn("Erreur lors du toggle via barre d'espace:", error);
+          }
+        }
+      }
+    };
+
+    // Ajouter l'écouteur d'événement
+    window.addEventListener("keydown", handleSpaceKey);
+
+    // Nettoyer l'écouteur lors du démontage du composant
+    return () => {
+      window.removeEventListener("keydown", handleSpaceKey);
+    };
   }, [videoPlayerRef]);
 
   // Fonction de recherche principale
@@ -153,6 +182,15 @@ export const SearchBar = ({ videoPlayerRef }: SearchBarProps) => {
     if (videoPlayerRef?.current) {
       videoPlayerRef.current.loadYouTubeVideo(id, startTime);
       toast.success(`Lecture de la vidéo: ${video.title}`);
+
+      // S'assurer que la vidéo commence à jouer immédiatement
+      // Ajouter un petit délai pour s'assurer que la vidéo est chargée
+      setTimeout(() => {
+        if (videoPlayerRef?.current) {
+          videoPlayerRef.current.play();
+          console.log("Auto-playing video after search");
+        }
+      }, 500);
     } else {
       console.error("videoPlayerRef is not available");
     }
@@ -171,10 +209,7 @@ export const SearchBar = ({ videoPlayerRef }: SearchBarProps) => {
       <div className="flex items-center gap-2 w-full max-w-2xl mx-auto bg-background/50 backdrop-blur-sm border border-border/50 p-4 rounded-2xl">
         <ModeToggle />
         <SearchForm onSearch={handleSearch} isLoading={isLoading} />
-        <MediaControls
-          videoPlayerRef={videoPlayerRef}
-          initialPlayState={isPlaying}
-        />
+        <MediaControls videoPlayerRef={videoPlayerRef} />
       </div>
 
       {/* Informations du film */}
