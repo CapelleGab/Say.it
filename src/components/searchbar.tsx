@@ -15,7 +15,6 @@ interface SearchBarProps {
 }
 
 export const SearchBar = ({ videoPlayerRef }: SearchBarProps) => {
-  // États du composant
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedVideoInfo, setSelectedVideoInfo] =

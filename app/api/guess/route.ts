@@ -1,3 +1,11 @@
+import {
+  TMDBCastMember,
+  TMDBCreator,
+  TMDBCrewMember,
+  TMDBMovieDetails,
+  TMDBResult,
+  TMDBTVShowDetails,
+} from "@/src/types/tmdbTypes";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextResponse } from "next/server";
 
@@ -21,61 +29,6 @@ interface MovieResponse {
   episode?: string | number;
   director?: string;
   actors?: string[];
-}
-
-interface TMDBResult {
-  id: number;
-  media_type: string;
-  title?: string;
-  name?: string;
-  overview?: string;
-  poster_path?: string;
-  release_date?: string;
-  first_air_date?: string;
-}
-
-// Interfaces pour les données de TMDB
-interface TMDBCreator {
-  id: number;
-  name: string;
-  profile_path?: string;
-}
-
-interface TMDBCastMember {
-  id: number;
-  name: string;
-  character: string;
-  profile_path?: string;
-}
-
-interface TMDBCrewMember {
-  id: number;
-  name: string;
-  job: string;
-  department: string;
-  profile_path?: string;
-}
-
-interface TMDBCredits {
-  cast: TMDBCastMember[];
-  crew: TMDBCrewMember[];
-}
-
-interface TMDBTVShowDetails {
-  id: number;
-  name: string;
-  overview?: string;
-  first_air_date?: string;
-  created_by: TMDBCreator[];
-  credits?: TMDBCredits;
-}
-
-interface TMDBMovieDetails {
-  id: number;
-  title: string;
-  overview?: string;
-  release_date?: string;
-  credits?: TMDBCredits;
 }
 
 // Fonction principale de l'API
