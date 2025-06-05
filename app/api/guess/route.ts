@@ -19,6 +19,8 @@ interface MovieResponse {
   is_series?: boolean;
   season?: string | number;
   episode?: string | number;
+  director?: string;
+  actors?: string[];
 }
 
 interface TMDBResult {
@@ -30,6 +32,50 @@ interface TMDBResult {
   poster_path?: string;
   release_date?: string;
   first_air_date?: string;
+}
+
+// Interfaces pour les données de TMDB
+interface TMDBCreator {
+  id: number;
+  name: string;
+  profile_path?: string;
+}
+
+interface TMDBCastMember {
+  id: number;
+  name: string;
+  character: string;
+  profile_path?: string;
+}
+
+interface TMDBCrewMember {
+  id: number;
+  name: string;
+  job: string;
+  department: string;
+  profile_path?: string;
+}
+
+interface TMDBCredits {
+  cast: TMDBCastMember[];
+  crew: TMDBCrewMember[];
+}
+
+interface TMDBTVShowDetails {
+  id: number;
+  name: string;
+  overview?: string;
+  first_air_date?: string;
+  created_by: TMDBCreator[];
+  credits?: TMDBCredits;
+}
+
+interface TMDBMovieDetails {
+  id: number;
+  title: string;
+  overview?: string;
+  release_date?: string;
+  credits?: TMDBCredits;
 }
 
 // Fonction principale de l'API
@@ -129,6 +175,7 @@ function parseGeminiResponse(rawText: string): MovieResponse {
  */
 async function enrichWithTMDBData(movieData: MovieResponse): Promise<void> {
   try {
+    // Recherche multi-type (film + série)
     const searchResults = await searchTMDB(movieData.title!);
     if (!searchResults?.length) {
       console.log(`No TMDB results found for "${movieData.title}"`);
@@ -148,6 +195,10 @@ async function enrichWithTMDBData(movieData: MovieResponse): Promise<void> {
     // Si c'est une série TV, récupérer des informations supplémentaires
     if (bestMatch.media_type === "tv") {
       await enrichWithTVShowDetails(movieData, bestMatch.id);
+    }
+    // Si c'est un film, récupérer les détails du film
+    else if (bestMatch.media_type === "movie") {
+      await enrichWithMovieDetails(movieData, bestMatch.id);
     }
   } catch (error) {
     console.error(`Error enriching data for "${movieData.title}":`, error);
@@ -252,17 +303,78 @@ async function enrichWithTVShowDetails(
 ): Promise<void> {
   try {
     const tvRes = await fetch(
-      `https://api.themoviedb.org/3/tv/${tvId}?api_key=${TMDB_API_KEY}`
+      `https://api.themoviedb.org/3/tv/${tvId}?api_key=${TMDB_API_KEY}&append_to_response=credits`
     );
-    const tvData = await tvRes.json();
+    const tvData = (await tvRes.json()) as TMDBTVShowDetails;
 
     if (tvData) {
       movieData.overview = movieData.overview || tvData.overview;
       movieData.year =
         movieData.year || tvData.first_air_date?.split("-")[0] || "N/A";
+
+      // Récupérer les créateurs/showrunners comme "réalisateurs" pour les séries
+      if (tvData.created_by && tvData.created_by.length > 0) {
+        movieData.director = tvData.created_by
+          .map((creator: TMDBCreator) => creator.name)
+          .join(", ");
+      }
+
+      // Récupérer les acteurs principaux
+      if (
+        tvData.credits &&
+        tvData.credits.cast &&
+        tvData.credits.cast.length > 0
+      ) {
+        // Limiter aux 5 premiers acteurs
+        movieData.actors = tvData.credits.cast
+          .slice(0, 5)
+          .map((actor: TMDBCastMember) => actor.name);
+      }
     }
   } catch (error) {
     console.error(`Error fetching TV details for ID ${tvId}:`, error);
+  }
+}
+
+/**
+ * Récupère des informations supplémentaires pour les films
+ */
+async function enrichWithMovieDetails(
+  movieData: MovieResponse,
+  movieId: number
+): Promise<void> {
+  try {
+    const movieRes = await fetch(
+      `https://api.themoviedb.org/3/movie/${movieId}?api_key=${TMDB_API_KEY}&append_to_response=credits`
+    );
+    const movieData2 = (await movieRes.json()) as TMDBMovieDetails;
+
+    if (movieData2) {
+      // Récupérer le réalisateur
+      if (movieData2.credits && movieData2.credits.crew) {
+        const directors = movieData2.credits.crew
+          .filter((person: TMDBCrewMember) => person.job === "Director")
+          .map((director: TMDBCrewMember) => director.name);
+
+        if (directors.length > 0) {
+          movieData.director = directors.join(", ");
+        }
+      }
+
+      // Récupérer les acteurs principaux
+      if (
+        movieData2.credits &&
+        movieData2.credits.cast &&
+        movieData2.credits.cast.length > 0
+      ) {
+        // Limiter aux 5 premiers acteurs
+        movieData.actors = movieData2.credits.cast
+          .slice(0, 5)
+          .map((actor: TMDBCastMember) => actor.name);
+      }
+    }
+  } catch (error) {
+    console.error(`Error fetching movie details for ID ${movieId}:`, error);
   }
 }
 

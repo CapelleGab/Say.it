@@ -51,6 +51,8 @@ export const SearchBar = ({ videoPlayerRef }: SearchBarProps) => {
           media_type,
           season,
           episode,
+          director,
+          actors,
         } = guessData.result;
 
         // Stocker les informations du film/série
@@ -63,6 +65,8 @@ export const SearchBar = ({ videoPlayerRef }: SearchBarProps) => {
           media_type,
           season,
           episode,
+          director,
+          actors,
         });
 
         // Chercher les vidéos sur YouTube

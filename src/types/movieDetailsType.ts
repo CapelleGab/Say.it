@@ -7,4 +7,6 @@ export interface MovieDetails {
   media_type?: string;
   season?: string | number;
   episode?: string | number;
+  director?: string;
+  actors?: string[];
 }
