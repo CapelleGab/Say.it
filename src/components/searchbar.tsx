@@ -183,14 +183,30 @@ export const SearchBar = ({ videoPlayerRef }: SearchBarProps) => {
       videoPlayerRef.current.loadYouTubeVideo(id, startTime);
       toast.success(`Lecture de la vidéo: ${video.title}`);
 
-      // S'assurer que la vidéo commence à jouer immédiatement
-      // Ajouter un petit délai pour s'assurer que la vidéo est chargée
+      // Série de tentatives pour s'assurer que la vidéo démarre
+      // Première tentative après un court délai
       setTimeout(() => {
         if (videoPlayerRef?.current) {
           videoPlayerRef.current.play();
-          console.log("Auto-playing video after search");
+          console.log("First auto-play attempt after search");
         }
       }, 500);
+
+      // Deuxième tentative après un délai moyen
+      setTimeout(() => {
+        if (videoPlayerRef?.current) {
+          videoPlayerRef.current.play();
+          console.log("Second auto-play attempt after search");
+        }
+      }, 1500);
+
+      // Troisième tentative après un délai plus long
+      setTimeout(() => {
+        if (videoPlayerRef?.current) {
+          videoPlayerRef.current.play();
+          console.log("Third auto-play attempt after search");
+        }
+      }, 3000);
     } else {
       console.error("videoPlayerRef is not available");
     }

@@ -30,6 +30,8 @@ declare global {
             start?: number;
             playsinline?: number;
             mute?: number;
+            loop?: number;
+            playlist?: string;
           };
           events?: {
             onReady?: (event: { target: YTPlayer }) => void;
@@ -237,14 +239,40 @@ export const VideoPlayer = forwardRef<VideoPlayerRef>((props, ref) => {
             videoId: videoId,
             startSeconds: startTimeInSeconds || 0,
           });
-          // S'assurer que la vidéo joue
+
+          // Série de tentatives pour s'assurer que la vidéo joue
+          // Premier essai immédiat
+          youtubePlayer.playVideo();
+          console.log("First play attempt after loading video");
+
+          // Deuxième essai après un court délai
+          setTimeout(() => {
+            if (youtubePlayer) {
+              youtubePlayer.playVideo();
+              console.log("Second play attempt after loading video");
+            }
+          }, 300);
+
+          // Troisième essai après un délai plus long
           setTimeout(() => {
             if (youtubePlayer) {
               youtubePlayer.playVideo();
               setIsPlaying(true);
-              console.log("Force play after loading video");
+              console.log("Third play attempt after loading video");
             }
-          }, 300);
+          }, 1000);
+
+          // Quatrième essai après un délai encore plus long
+          setTimeout(() => {
+            if (youtubePlayer) {
+              const state = youtubePlayer.getPlayerState();
+              console.log("Player state after 2s:", state);
+              if (state !== window.YT.PlayerState.PLAYING) {
+                youtubePlayer.playVideo();
+                console.log("Final play attempt after loading video");
+              }
+            }
+          }, 2000);
         } catch (err) {
           console.error("Erreur lors du chargement de la vidéo:", err);
         }
@@ -293,6 +321,8 @@ export const VideoPlayer = forwardRef<VideoPlayerRef>((props, ref) => {
             start: startTime,
             playsinline: 1,
             mute: 0,
+            loop: 1,
+            playlist: videoId,
           },
           events: {
             onReady: (event: { target: YTPlayer }) => {
@@ -306,14 +336,30 @@ export const VideoPlayer = forwardRef<VideoPlayerRef>((props, ref) => {
                 }
               }, 200);
 
+              // Second attempt to ensure playback
+              setTimeout(() => {
+                if (youtubePlayer) {
+                  youtubePlayer.playVideo();
+                }
+              }, 1000);
+
               setIsPlaying(true);
               // Ajouter un log pour déboguer
               console.log("YouTube player ready, starting playback");
             },
             onStateChange: (event: { data: number }) => {
-              // YT.PlayerState.PLAYING = 1, YT.PlayerState.PAUSED = 2
+              // YT.PlayerState.PLAYING = 1, YT.PlayerState.PAUSED = 2, YT.PlayerState.ENDED = 0
               const isPlayerPlaying =
                 event.data === window.YT.PlayerState.PLAYING;
+
+              // Relancer la vidéo si elle est terminée (redondant avec loop, mais au cas où)
+              if (event.data === window.YT.PlayerState.ENDED) {
+                if (youtubePlayer) {
+                  youtubePlayer.seekTo(0, true);
+                  youtubePlayer.playVideo();
+                }
+              }
+
               console.log(
                 "YouTube player state changed:",
                 event.data,
