@@ -6,11 +6,13 @@ import {
   TMDBResult,
   TMDBTVShowDetails,
 } from "@/src/types/tmdbTypes";
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { Mistral } from "@mistralai/mistralai";
 import { NextResponse } from "next/server";
 
 // Constantes d'API
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+const mistralClient = new Mistral({
+  apiKey: process.env.MISTRAL_API_KEY!,
+});
 const TMDB_API_KEY = process.env.TMDB_API_KEY!;
 const TMDB_IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500";
 const DEFAULT_TIMECODE = "00:10:00";
@@ -36,8 +38,8 @@ export async function POST(req: Request) {
   try {
     const { quote } = await req.json();
 
-    // 1. Récupérer les informations depuis Gemini
-    const movieData = await getMovieInfoFromGemini(quote);
+    // 1. Récupérer les informations depuis Mistral
+    const movieData = await getMovieInfoFromMistral(quote);
 
     // 2. Enrichir avec les données TMDB si un titre est trouvé
     if (movieData.title) {
@@ -60,10 +62,9 @@ export async function POST(req: Request) {
 }
 
 /**
- * Interroge l'API Gemini pour obtenir des informations sur un film ou une série à partir d'une citation
+ * Interroge l'API Mistral pour obtenir des informations sur un film ou une série à partir d'une citation
  */
-async function getMovieInfoFromGemini(quote: string): Promise<MovieResponse> {
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+async function getMovieInfoFromMistral(quote: string): Promise<MovieResponse> {
   const prompt = `Tu es un expert en cinéma et séries TV. À partir de la citation suivante, trouve le timecode exact où cette citation apparaît dans la vidéo complète.
     Si c'est une série TV, indique également la saison et l'épisode.
     Réponds uniquement avec un objet JSON comme ceci : {
@@ -79,17 +80,37 @@ async function getMovieInfoFromGemini(quote: string): Promise<MovieResponse> {
   
     Citation : "${quote}"`;
 
-  const result = await model.generateContent(prompt);
-  const rawText = result.response.text().trim();
-  console.log("Raw response from Gemini:", rawText);
+  try {
+    const chatResponse = await mistralClient.chat.complete({
+      model: "mistral-large-latest",
+      messages: [{ role: "user", content: prompt }],
+    });
 
-  return parseGeminiResponse(rawText);
+    // Vérifier si chatResponse et ses propriétés existent
+    if (!chatResponse?.choices?.[0]?.message?.content) {
+      console.error("Mistral API returned unexpected response format");
+      return {};
+    }
+
+    // Récupérer le contenu de la réponse
+    const content = chatResponse.choices[0].message.content;
+
+    // Convertir le contenu en chaîne si ce n'est pas déjà le cas
+    const rawText =
+      typeof content === "string" ? content.trim() : JSON.stringify(content);
+    console.log("Raw response from Mistral:", rawText);
+
+    return parseMistralResponse(rawText);
+  } catch (error) {
+    console.error("Error calling Mistral API:", error);
+    return {};
+  }
 }
 
 /**
- * Analyse la réponse brute de Gemini pour en extraire un objet structuré
+ * Analyse la réponse brute de Mistral pour en extraire un objet structuré
  */
-function parseGeminiResponse(rawText: string): MovieResponse {
+function parseMistralResponse(rawText: string): MovieResponse {
   let movieData: MovieResponse = {};
 
   try {
@@ -112,7 +133,7 @@ function parseGeminiResponse(rawText: string): MovieResponse {
       return { timecode: `00:${shortTimecodeMatch[0]}` };
     }
   } catch (e) {
-    console.error("Error parsing Gemini response:", e);
+    console.error("Error parsing Mistral response:", e);
 
     const timecodeMatch = rawText.match(/(\d{1,2}):(\d{2}):(\d{2})/);
     if (timecodeMatch) {
