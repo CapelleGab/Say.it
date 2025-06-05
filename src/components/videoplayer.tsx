@@ -265,7 +265,6 @@ export const VideoPlayer = forwardRef<VideoPlayerRef>((props, ref) => {
         initPlayer(youtubeVideoId);
       };
     } else if (window.YT && youtubeVideoId) {
-      // Si l'API est déjà chargée
       initPlayer(youtubeVideoId);
     }
 
