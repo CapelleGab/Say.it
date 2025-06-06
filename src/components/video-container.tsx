@@ -1,35 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useRef } from "react";
 import { VideoPlayerRef } from "../types/videoPlayerType";
 import { SearchBar } from "./searchbar";
 import { VideoPlayer } from "./videoplayer";
 
 export const VideoContainer = () => {
   const videoPlayerRef = useRef<VideoPlayerRef>(null);
-  const [isPlayerReady, setIsPlayerReady] = useState(false);
-
-  // Vérifier que la référence est correctement attachée
-  useEffect(() => {
-    console.log("VideoPlayer ref initial:", videoPlayerRef.current);
-
-    // Attendre que le composant soit monté
-    const checkInterval = setInterval(() => {
-      if (videoPlayerRef.current) {
-        console.log(
-          "VideoPlayer ref is now available:",
-          videoPlayerRef.current
-        );
-        setIsPlayerReady(true);
-        clearInterval(checkInterval);
-      }
-    }, 500);
-
-    // Nettoyer l'intervalle au démontage
-    return () => {
-      clearInterval(checkInterval);
-    };
-  }, []);
 
   return (
     <div className="">

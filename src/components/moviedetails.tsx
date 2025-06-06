@@ -35,7 +35,7 @@ export const MovieCard = ({ movieInfo }: { movieInfo: MovieDetails }) => {
                 alt={movieInfo.title || "Poster du film"}
                 className="w-full h-auto rounded-lg object-cover shadow-md"
                 width={300}
-                height={450}
+                height={400}
               />
             </div>
           )}
