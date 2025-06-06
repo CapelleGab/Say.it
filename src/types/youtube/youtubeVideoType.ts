@@ -1,4 +1,4 @@
-export interface YouTubeVideo {
+export type YouTubeVideo = {
   id: string;
   title: string;
   description: string;
@@ -8,4 +8,4 @@ export interface YouTubeVideo {
   viewCount: string;
   publishedAt: string;
   embedUrl: string;
-}
+};

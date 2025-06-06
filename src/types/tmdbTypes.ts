@@ -1,5 +1,4 @@
-
-export interface TMDBResult {
+export type TMDBResult = {
   id: number;
   media_type: string;
   title?: string;
@@ -11,20 +10,20 @@ export interface TMDBResult {
 }
 
 // Interfaces pour les données de TMDB
-export interface TMDBCreator {
+export type TMDBCreator = {
   id: number;
   name: string;
   profile_path?: string;
 }
 
-export interface TMDBCastMember {
+export type TMDBCastMember = {
   id: number;
   name: string;
   character: string;
   profile_path?: string;
 }
 
-export interface TMDBCrewMember {
+export type TMDBCrewMember = {
   id: number;
   name: string;
   job: string;
@@ -32,12 +31,12 @@ export interface TMDBCrewMember {
   profile_path?: string;
 }
 
-export interface TMDBCredits {
+export type TMDBCredits = {
   cast: TMDBCastMember[];
   crew: TMDBCrewMember[];
 }
 
-export interface TMDBTVShowDetails {
+export type TMDBTVShowDetails = {
   id: number;
   name: string;
   overview?: string;
@@ -46,7 +45,7 @@ export interface TMDBTVShowDetails {
   credits?: TMDBCredits;
 }
 
-export interface TMDBMovieDetails {
+export type TMDBMovieDetails = {
   id: number;
   title: string;
   overview?: string;

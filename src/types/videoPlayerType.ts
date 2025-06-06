@@ -1,4 +1,4 @@
-export interface VideoPlayerRef {
+export type VideoPlayerRef = {
   play: () => void;
   pause: () => void;
   setVolume: (volume: number) => void;
