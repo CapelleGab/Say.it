@@ -2,15 +2,15 @@
 
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { guessMovieFromQuote } from "../actions/guess";
-import { searchYouTubeVideos } from "../actions/youtube";
-import { MovieDetails } from "../types/movieDetailsType";
-import { VideoPlayerRef } from "../types/videoPlayerType";
-import { YouTubeVideo } from "../types/youtube/youtubeVideoType";
-import { MovieCard } from "./moviedetails";
-import { MediaControls } from "./searchbar/MediaControls";
-import { SearchForm } from "./searchbar/SearchForm";
-import { ModeToggle } from "./ui/toggle-theme";
+import { guessMovieFromQuote } from "../../actions/guess";
+import { searchYouTubeVideos } from "../../actions/youtube";
+import { MovieDetails } from "../../types/movieDetailsType";
+import { VideoPlayerRef } from "../../types/videoPlayerType";
+import { YouTubeVideo } from "../../types/youtube/youtubeVideoType";
+import { MovieCard } from "../moviedetails";
+import { MediaControls } from "../searchbar/MediaControls";
+import { SearchForm } from "../searchbar/SearchForm";
+import { ModeToggle } from "../ui/toggle-theme";
 
 interface SearchBarProps {
   videoPlayerRef?: React.RefObject<VideoPlayerRef | null>;

@@ -1,6 +1,12 @@
 "use client";
 
 import { Button } from "@/src/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/src/components/ui/tooltip";
 import { VideoPlayerRef } from "@/src/types/videoPlayerType";
 import { Pause, Play } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -12,7 +18,6 @@ interface MediaControlsProps {
 
 export const MediaControls = ({ videoPlayerRef }: MediaControlsProps) => {
   const [isPlaying, setIsPlaying] = useState(false);
-  const [showTooltip, setShowTooltip] = useState(false);
   const [isPlayerReady, setIsPlayerReady] = useState(false);
 
   // Effet pour synchroniser l'état de lecture avec le lecteur vidéo
@@ -70,38 +75,33 @@ export const MediaControls = ({ videoPlayerRef }: MediaControlsProps) => {
       videoPlayerRef.current.setVolume(volume);
     }
   };
-
   return (
     <div className="flex items-center gap-3 ml-2 border-l border-border/50 pl-3">
-      <div
-        className="relative"
-        onMouseEnter={() => setShowTooltip(true)}
-        onMouseLeave={() => setShowTooltip(false)}
-      >
-        <Button
-          onClick={togglePlay}
-          variant="ghost"
-          size="icon"
-          className="h-8 w-8 relative"
-          type="button"
-        >
-          {isPlaying ? (
-            <Pause className="h-4 w-4" />
-          ) : (
-            <Play className="h-4 w-4" />
-          )}
-          <span className="sr-only">
-            {isPlaying ? "Pause" : "Lecture"} (Barre d&apos;espace)
-          </span>
-        </Button>
-
-        {showTooltip && (
-          <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 px-2 py-1 bg-background/80 backdrop-blur-sm text-xs rounded shadow-md whitespace-nowrap z-50 border border-border/50">
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              onClick={togglePlay}
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 relative"
+              type="button"
+            >
+              {isPlaying ? (
+                <Pause className="h-4 w-4" />
+              ) : (
+                <Play className="h-4 w-4" />
+              )}
+              <span className="sr-only">
+                {isPlaying ? "Pause" : "Lecture"} (Barre d&apos;espace)
+              </span>
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
             {isPlaying ? "Pause" : "Lecture"} (Espace)
-            <div className="absolute left-1/2 -translate-x-1/2 -bottom-1 border-4 border-transparent border-t-background/80" />
-          </div>
-        )}
-      </div>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
 
       <VolumeControl onVolumeChange={handleVolumeChange} />
     </div>

@@ -3,6 +3,12 @@
 import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
 import { useRef, useState } from "react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "../ui/tooltip";
 
 interface SearchFormProps {
   onSearch: (query: string) => Promise<void>;
@@ -35,9 +41,18 @@ export const SearchForm = ({ onSearch, isLoading }: SearchFormProps) => {
         className="w-full"
         disabled={isLoading}
       />
-      <Button type="submit" disabled={isLoading}>
-        {isLoading ? "Recherche..." : "Rechercher"}
-      </Button>
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button type="submit" disabled={isLoading}>
+              {isLoading ? "Recherche..." : "Rechercher"}
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Launch the search</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
     </form>
   );
 };

@@ -4,6 +4,12 @@ import { Button } from "@/src/components/ui/button";
 import { Slider } from "@/src/components/ui/slider";
 import { Volume2, VolumeX } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "../ui/tooltip";
 
 interface VolumeControlProps {
   onVolumeChange: (volume: number) => void;
@@ -67,36 +73,54 @@ export const VolumeControl = ({
 
   return (
     <div id="volume-controls" className="relative">
-      <Button
-        onClick={toggleVolumeSlider}
-        variant="ghost"
-        size="icon"
-        className="h-8 w-8"
-        type="button"
-      >
-        {isMuted ? (
-          <VolumeX className="h-4 w-4" />
-        ) : (
-          <Volume2 className="h-4 w-4" />
-        )}
-      </Button>
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              onClick={toggleVolumeSlider}
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8"
+              type="button"
+            >
+              {isMuted ? (
+                <VolumeX className="h-4 w-4" />
+              ) : (
+                <Volume2 className="h-4 w-4" />
+              )}
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>{isMuted ? "Unmute" : "Mute"} (M)</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
 
       {showVolumeSlider && (
         <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 p-2 bg-background rounded-lg shadow-lg border border-border/50 w-36 z-50">
           <div className="flex items-center gap-2 mb-1">
-            <Button
-              onClick={toggleMute}
-              variant="ghost"
-              size="icon"
-              className="h-6 w-6"
-              type="button"
-            >
-              {isMuted ? (
-                <VolumeX className="h-3 w-3" />
-              ) : (
-                <Volume2 className="h-3 w-3" />
-              )}
-            </Button>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    onClick={toggleMute}
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6"
+                    type="button"
+                  >
+                    {isMuted ? (
+                      <VolumeX className="h-3 w-3" />
+                    ) : (
+                      <Volume2 className="h-3 w-3" />
+                    )}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>{isMuted ? "Unmute" : "Mute"} (M)</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
             <span className="text-xs">{Math.round(volume * 100)}%</span>
           </div>
           <Slider
