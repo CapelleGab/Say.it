@@ -3,7 +3,7 @@
 import {
   YouTubeSearchItem,
   YouTubeVideoItem,
-} from "../types/youtube/youtubeItem";
+} from "../types/youtube/youtubeItemTypes";
 
 const YOUTUBE_API_KEY = process.env.YOUTUBE_API_KEY!;
 
