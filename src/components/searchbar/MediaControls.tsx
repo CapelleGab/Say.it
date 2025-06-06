@@ -8,13 +8,9 @@ import { VolumeControl } from "./VolumeControl";
 
 interface MediaControlsProps {
   videoPlayerRef?: React.RefObject<VideoPlayerRef | null>;
-  initialPlayState?: boolean;
 }
 
-export const MediaControls = ({
-  videoPlayerRef,
-  initialPlayState = false,
-}: MediaControlsProps) => {
+export const MediaControls = ({ videoPlayerRef }: MediaControlsProps) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
   const [isPlayerReady, setIsPlayerReady] = useState(false);

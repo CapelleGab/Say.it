@@ -16,23 +16,6 @@ interface SearchBarProps {
   videoPlayerRef?: React.RefObject<VideoPlayerRef | null>;
 }
 
-interface GuessResult {
-  result: {
-    title?: string;
-    year?: string;
-    overview?: string;
-    poster?: string | null;
-    timecode?: string;
-    id?: string | number;
-    media_type?: string;
-    is_series?: boolean;
-    season?: string | number;
-    episode?: string | number;
-    director?: string;
-    actors?: string[];
-  };
-}
-
 export const SearchBar = ({ videoPlayerRef }: SearchBarProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [movieInfo, setMovieInfo] = useState<MovieDetails | null>(null);
@@ -77,7 +60,6 @@ export const SearchBar = ({ videoPlayerRef }: SearchBarProps) => {
       if (guessData?.result) {
         const {
           title,
-          timecode,
           year,
           overview,
           poster,
@@ -106,7 +88,7 @@ export const SearchBar = ({ videoPlayerRef }: SearchBarProps) => {
           ? `${title} movie scene "${prompt}"`
           : `movie scene "${prompt}"`;
 
-        const youtubeData = await searchYouTubeVideos(searchQuery, timecode);
+        const youtubeData = await searchYouTubeVideos(searchQuery);
 
         if (youtubeData?.videos && youtubeData.videos.length > 0) {
           await loadYouTubeVideo(youtubeData.videos[0]);

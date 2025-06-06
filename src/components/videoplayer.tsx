@@ -137,7 +137,7 @@ export const VideoPlayer = forwardRef<VideoPlayerRef>((props, ref) => {
               youtubePlayer.playVideo();
               setIsPlaying(true);
             }
-          } catch (stateError) {
+          } catch {
             // Fallback si getPlayerState échoue
             if (isPlaying) {
               youtubePlayer.pauseVideo();
@@ -159,7 +159,7 @@ export const VideoPlayer = forwardRef<VideoPlayerRef>((props, ref) => {
             const playerState = youtubePlayer.getPlayerState();
             const playing = playerState === window.YT.PlayerState.PLAYING;
             return playing;
-          } catch (stateError) {
+          } catch {
             // Retourner l'état local comme fallback
             return isPlaying;
           }
